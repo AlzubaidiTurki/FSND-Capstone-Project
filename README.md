@@ -4,10 +4,10 @@
 ## fate API
 This project is for completeing the Full Stack Udacity Nanodegree program.\
 I tried to make it.. well.. fun! something that I like and fan of. which is fate/ anime series.\
-You can see how -if we continue developing- how it will look like from here "Star wars api". \
+You can see how -if we continue developing- how it will look like from here [Star Wars API](https://swapi.dev/). \
 Basically, the fate/ anime series is about a fight that happen in every period to fight over the Holy Grail, which grants you -almost- anything you want.\
 the players (Masters) will summon historical figures (Servants), which can be real (such as alexander the great) or fictional but they are deep in some human culutre (such as greek gods).\
-this API will show the masters and servants which are fighting in this moment!
+
 ## Live Server
 This website is delpoyed in Heroku with this domain: https://fsnd-fate.herokuapp.com/ \
 So basically you can intercat with it without any installation. However, see next section for local development
