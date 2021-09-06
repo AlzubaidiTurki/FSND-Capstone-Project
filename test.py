@@ -32,7 +32,7 @@ class TriviaTestCase(unittest.TestCase):
     def test_valid_get_index(self):
         res = self.client().get('/')
         self.assertEqual(res.status_code, 200)
-        # Since all other endpoints require premessions, please refer to the postman workspace.
+        # Since all other endpoints require premessions, please refer to the postman workspace (It will be simpler to test, i suppose).
 
 if __name__ == "__main__":
     unittest.main()
