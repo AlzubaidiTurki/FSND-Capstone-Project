@@ -18,15 +18,18 @@ with app.app_context():
     emiya = Master(
         id=1,
         name='Emiya Kiritsugu',
-        image='https://www.gwigwi.com/wp-content/uploads/2016/06/kiritsugu-emiya-e1466929284783.jpg')
+        image='https://www.gwigwi.com/wp-content\
+            /uploads/2016/06/kiritsugu-emiya-e1466929284783.jpg')
     tohsaka = Master(
         id=2,
         name='Tohsaka Rin',
-        image='https://2img.net/h/pre15.deviantart.net/75f5/th/pre/i/2015/079/1/0/rin_tohsaka_by_deikawn-d8fer1i.png')
+        image='https://2img.net/h/pre15.deviantart.net\
+            /75f5/th/pre/i/2015/079/1/0/rin_tohsaka_by_deikawn-d8fer1i.png')
     kirei = Master(
         id=3,
         name='Kotomine Kirei',
-        image='https://static.myfigurecollection.net/pics/encyclopedia/4380.jpg?rev=1297513293')
+        image='https://static.myfigurecollection.net\
+            /pics/encyclopedia/4380.jpg?rev=1297513293')
     db.session.add(emiya)
     db.session.add(tohsaka)
     db.session.add(kirei)
@@ -52,7 +55,8 @@ with app.app_context():
         name="Gilles de Rais",
         type="Caster",
         source='Historical Fact',
-        image='https://static.myfigurecollection.net/pics/encyclopedia/32393.jpg?rev=1494897149')
+        image='https://static.myfigurecollection.net\
+            /pics/encyclopedia/32393.jpg?rev=1494897149')
     db.session.add(archer)
     db.session.add(saber)
     db.session.add(caster)

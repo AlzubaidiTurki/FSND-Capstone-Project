@@ -51,7 +51,8 @@ class Servant(db.Model):
         }
 
     def __repr__(self):
-        return f'Name: {self.name}, Type: {self.type}, Source: {self.source}, image: {self.image}'
+        return f'Name: {self.name}, Type: {self.type}, \
+            Source: {self.source}, image: {self.image}'
 
 
 class Master(db.Model):

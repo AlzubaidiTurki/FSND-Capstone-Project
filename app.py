@@ -55,7 +55,7 @@ def get_masters(_):
 def summon_servant(_):
 
     body = request.get_json()
-
+    print(f'YATA_body {body}')
     if body is None or 'name' not in body:  # name attribute cannot be empty.
         abort(400)
 
@@ -85,7 +85,7 @@ def summon_servant(_):
         'servants': [servant.format() for servant in Servant.query.all()],
         'success': True
     })
-    #return redirect(url_for('get_servants'))
+    # return redirect(url_for('get_servants'))
 
 
 @app.route('/masters', methods=['POST'])
@@ -113,7 +113,7 @@ def assign_master(_):
         'success': True
     })
 
-    #return redirect(url_for('get_masters'))
+    # return redirect(url_for('get_masters'))
 
 
 @app.route('/servants/<int:servant_id>', methods=['PATCH'])
@@ -171,7 +171,7 @@ def delete_servant(_, servant_id):
         'servants': [servant.format() for servant in Servant.query.all()],
         'success': True
     })
-    #return redirect(url_for('get_servants'))
+    # return redirect(url_for('get_servants'))
 
 
 @app.route('/masters/<int:master_id>', methods=['DELETE'])
@@ -182,7 +182,7 @@ def delete_master(_, master_id):
         abort(422)
     try:
         master.delete()
-    except:
+    except BaseException:
         db.session.rollback()
         print(f'DELETE_MASTER_ERROR {sys.exc_info()}')
         abort(500)
@@ -191,7 +191,7 @@ def delete_master(_, master_id):
         'masters': [master.format() for master in Master.query.all()],
         'success': True
     })
-    #return redirect(url_for('get_masters'))
+    # return redirect(url_for('get_masters'))
 
 
 @app.errorhandler(422)
@@ -219,6 +219,7 @@ def not_found(e):
         "error": 500,
         "message": "Internal Server Error."
     }), 500
+
 
 @app.errorhandler(400)
 def not_found(e):
