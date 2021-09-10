@@ -14,16 +14,21 @@ app = Flask(__name__)
 setup_db(app)
 CORS(app)
 
+
 class customError(Exception):
     def __init__(self, error):
         self.error = error
 
+
 @app.route('/')
 def index():
     return '<h1> Welcome to the Holy Grail Battle page! </h1> \
-    <p> This battle should be a secret to public, you need to login as a master to view other masters and servants :) </p>'
+    <p> This battle should be a secret to public, \
+        you need to login as a master to view other masters and servants \
+             :) </p>'
 
-@app.route('/servants', methods = ['GET'])
+
+@app.route('/servants', methods=['GET'])
 @requires_auth('get:servants')
 def get_servants(_):
     servants = Servant.query.all()
@@ -33,25 +38,27 @@ def get_servants(_):
         'success': True
     })
 
-@app.route('/masters', methods = ['GET'])
+
+@app.route('/masters', methods=['GET'])
 @requires_auth('get:masters')
 def get_masters(_):
-    #masters = Master.query.all()
-    #print(masters)
+    # masters = Master.query.all()
+    # print(masters)
     return jsonify({
-        'servants': [master.format() for master in Master.query.all()],
+        'masters': [master.format() for master in Master.query.all()],
         'success': True
     })
 
-@app.route('/servants', methods = ['POST'])
+
+@app.route('/servants', methods=['POST'])
 @requires_auth('post:servants')
 def summon_servant(_):
 
     body = request.get_json()
 
-    if body is None or 'name' not in body: # name attribute cannot be empty.
+    if body is None or 'name' not in body:  # name attribute cannot be empty.
         abort(400)
-    
+
     name = body['name']
     type = body['type'] if 'type' in body else ''
     source = body['source'] if 'source' in body else ''
@@ -64,53 +71,63 @@ def summon_servant(_):
             master = Master.query.filter_by(name=body['master']).first()
             print(f'MASTER {master}')
             if master is not None:
-                servant.master_id = master.id 
+                servant.master_id = master.id
             else:
                 abort(422)
 
         servant.insert()
-    except:
+    except BaseException:
         db.session.rollback()
         print(f'POST_SERVANT_ERROR {sys.exc_info()}')
         abort(500)
-    
-    return redirect(url_for('get_servants'))
 
-@app.route('/masters', methods = ['POST'])
+    return jsonify({
+        'servants': [servant.format() for servant in Servant.query.all()],
+        'success': True
+    })
+    #return redirect(url_for('get_servants'))
+
+
+@app.route('/masters', methods=['POST'])
 @requires_auth('post:masters')
 def assign_master(_):
 
     body = request.get_json()
 
-    if body is None or 'name' not in body: # name attribute cannot be empty.
+    if body is None or 'name' not in body:  # name attribute cannot be empty.
         abort(400)
-    
+
     name = body['name']
     image = body['image'] if 'image' in body else ''
 
-
     try:
-        master = Master(name=name,  image=image)
+        master = Master(name=name, image=image)
         master.insert()
-    except:
+    except BaseException:
         db.session.rollback()
         print(f'POST_MASTER_ERROR {sys.exc_info()}')
         abort(500)
-    
-    return redirect(url_for('get_masters'))
+
+    return jsonify({
+        'masters': [master.format() for master in Master.query.all()],
+        'success': True
+    })
+
+    #return redirect(url_for('get_masters'))
+
 
 @app.route('/servants/<int:servant_id>', methods=['PATCH'])
 @requires_auth('patch:servants')
-def update_servant(_,servant_id):
+def update_servant(_, servant_id):
     servant = Servant.query.get(servant_id)
     if servant is None:
         abort(422)
     body = request.get_json()
 
-    if body is None or 'name' not in body: # name attribute cannot be empty.
+    if body is None:
         abort(400)
-    
-    servant.name = body['name']
+
+    servant.name = body['name'] if 'name' in body else ''
     servant.type = body['type'] if 'type' in body else ''
     servant.source = body['source'] if 'source' in body else ''
     servant.image = body['image'] if 'image' in body else ''
@@ -124,31 +141,42 @@ def update_servant(_,servant_id):
 
     try:
         servant.update()
-    except:
+    except BaseException:
         db.session.rollback()
         print(f'PATCH_SERVANT_ERROR {sys.exc_info()}')
         abort(500)
-    
-    return redirect(url_for('get_servants'))
 
-@app.route('/servants/<int:servant_id>', methods = ['DELETE'])
+    return jsonify({
+        'servants': [servant.format() for servant in Servant.query.all()],
+        'success': True
+    })
+
+    # return redirect(url_for('get_servants'))
+
+
+@app.route('/servants/<int:servant_id>', methods=['DELETE'])
 @requires_auth('delete:servants')
-def delete_servant(_,servant_id):
+def delete_servant(_, servant_id):
     servant = Servant.query.get(servant_id)
     if servant is None:
         abort(422)
     try:
         servant.delete()
-    except:
+    except BaseException:
         db.session.rollback()
         print(f'DELETE_SERVANT_ERROR {sys.exc_info()}')
         abort(500)
 
-    return redirect(url_for('get_servants'))
+    return jsonify({
+        'servants': [servant.format() for servant in Servant.query.all()],
+        'success': True
+    })
+    #return redirect(url_for('get_servants'))
 
-@app.route('/masters/<int:master_id>', methods = ['DELETE'])
+
+@app.route('/masters/<int:master_id>', methods=['DELETE'])
 @requires_auth('delete:masters')
-def delete_master(_,master_id):
+def delete_master(_, master_id):
     master = Master.query.get(master_id)
     if master is None:
         abort(422)
@@ -158,10 +186,14 @@ def delete_master(_,master_id):
         db.session.rollback()
         print(f'DELETE_MASTER_ERROR {sys.exc_info()}')
         abort(500)
-        
-    return redirect(url_for('get_masters'))
 
-# Error Handling
+    return jsonify({
+        'masters': [master.format() for master in Master.query.all()],
+        'success': True
+    })
+    #return redirect(url_for('get_masters'))
+
+
 @app.errorhandler(422)
 def unprocessable(e):
     return jsonify({
@@ -187,6 +219,14 @@ def not_found(e):
         "error": 500,
         "message": "Internal Server Error."
     }), 500
+
+@app.errorhandler(400)
+def not_found(e):
+    return jsonify({
+        "success": False,
+        "error": 400,
+        "message": "Bad Request."
+    }), 400
 
 
 @app.errorhandler(AuthError)
