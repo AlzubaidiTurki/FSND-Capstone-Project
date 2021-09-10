@@ -3,13 +3,11 @@ from re import M
 import unittest
 import json
 from flask_sqlalchemy import SQLAlchemy
-import math
+import os
 from app import app
 from models import setup_db, Servant, Master
 
-MASTER_TOKEN = 'bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImhDZWEyMlBZaGxKZ2xXbmhjckRNdiJ9.eyJpc3MiOiJodHRwczovL2Rldi1zYW1zbmotMy51cy5hdXRoMC5jb20vIiwic3ViIjoiYXV0aDB8NjEzMzY4NzlmNDNhNjIwMDZhOGQ3MzkwIiwiYXVkIjoiZmF0ZSIsImlhdCI6MTYzMTIxMjg4NiwiZXhwIjoxNjMxMjk5Mjg2LCJhenAiOiIzTWpjTnJ3ZDNkejN0emllVVZWRzlKRXNmVXdDMmxZciIsInNjb3BlIjoiIiwicGVybWlzc2lvbnMiOlsiZ2V0Om1hc3RlcnMiLCJnZXQ6c2VydmFudHMiXX0.PpmWmzP7hCt4FqzazS7ptXmzQESwn8u6qQADjaksw_fr391xvYq91WfSP27BS16IciZHk-R2YkFBSt89DuJcu1luX_-O7w73pjydrWa8CgNZC0h6AqFFZCgimM1OPmeGj8-nx2pt74FYKPwRCVp6lEHFrZ08x9nOtfyRnekPzVsZX_3H3YyfwandCWB2zBXpakUVnriI6sHpjaFMuZtK7J7UMwHODgUyimtDscz6ckpOjUW2G5eWEhX3lyvkLRqV3MwWjDPY9-mTxPyca_aSVm9TO1oxTMme65kmgLpVFeQMJ_qWhTXNkt-US7ilXuNGM9zu_3b9_p2NNSr7ZD4RAQ'
-JUDGE_TOKEN = 'bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImhDZWEyMlBZaGxKZ2xXbmhjckRNdiJ9.eyJpc3MiOiJodHRwczovL2Rldi1zYW1zbmotMy51cy5hdXRoMC5jb20vIiwic3ViIjoiYXV0aDB8NjEzMzY4NWE4ZmZiNzQwMDcxZDllYTYxIiwiYXVkIjoiZmF0ZSIsImlhdCI6MTYzMTIxMjk0MywiZXhwIjoxNjMxMjk5MzQzLCJhenAiOiIzTWpjTnJ3ZDNkejN0emllVVZWRzlKRXNmVXdDMmxZciIsInNjb3BlIjoiIiwicGVybWlzc2lvbnMiOlsiZGVsZXRlOm1hc3RlcnMiLCJkZWxldGU6c2VydmFudHMiLCJnZXQ6bWFzdGVycyIsImdldDpzZXJ2YW50cyIsInBhdGNoOnNlcnZhbnRzIiwicG9zdDptYXN0ZXJzIiwicG9zdDpzZXJ2YW50cyJdfQ.dug3H3xo6tchKNe-u13iB1QZEHegz-o3O3uloF3ZX4I88SaG6Q-fkCfbDq8mUd5E4hX0Glh20mJ3DL71mXG89oD7ZcRw2E-E--yB_jyffDAb72Kuiham_AIJrQiDp2_Hf0UHYKkdXd5xARIubeB9To-VpEu-gr0Suxxe70MdHOZQp3FZU_-__54iGAeUw5mG9lFxz2O0SX-O8e6FX1oxVKrwGQ0iYZ6lDsDpDP5WyfCAPBwPdVtC-d7Ue3--OPy13xqrYvIGrt2MS9ukjAi07Utd6-ASZEVYlnOJXX45XOIM5kQSxVi1q64Oq4WiBS0SQafqrscKRtdSYkvZkH4Prw'
-FALSE_TOKEN = 'bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImhDZWEyMlBZaGxKZ2xXbmhjckRNdiJ9.eyJpc3MiOiJodHRwczovL2Rldi1zYW1zbmotMy51cy5hdXRoMC5jb20vIiwic3ViIjoiYXV0aDB8NjEzMzY4NWE4ZmZiNzQwMDcxZDllYTYxIiwiYXVkIjoiZmF0ZSIsImlhdCI6MTYzMTIxMjk0MywiZXhwIjoxNjMxMjk5MzQzLCJhenAiOiIzTWpjTnJ3ZDNkejN0emllVVZWRzlKRXNmVXdDMmxZciIsInNjb3BlIjoiIiwicGVybWlzc2lvbnMiOlsiZGVsZXRlOm1hc3RlcnMiLCJkZWxldGU6c2VydmFudHMiLCJnZXQ6bWFzdGVycyIsImdldDpzZXJ2YW50cyIsInBhdGNoOnNlcnZhbnRzIiwicG9zdDptYXN0ZXJzIiwicG9zdDpzZXJ2YW50cyJdfQ.dug3H3xo6tchKNe-u13iB1QZEHegz-o3O3uloF3ZX4I88SaG6Q-fkCfbDq8mUd5E4hX0Glh20mJ3DL71mXG89oD7ZcRw2E-E--yB_jyffDAb72Kuiham_AIJrQiDp2_Hf0UHYKkdXd5xARIubeB9To-VpEu-gr0SuMdHOZgfdgfdgdsfgsdfgQp3FZU_-__54iGAeUw5mG9lFxz2O0SX-O8e6FX1oxVKrwGQ0iYZ6lDsDpDP5WyfCAPBwPdVtC-d7Ue3--OPy13xqrYvIGrt2MS9ukjAi07Utd6-ASZEVYlnOJXX45XOIM5kQSxVi1q64Oq4WiBS0SQafqrscKRtdSYkvZkH4Prw'
+
 class TriviaTestCase(unittest.TestCase):
     """This class represents the trivia test case"""
 
@@ -22,6 +20,9 @@ class TriviaTestCase(unittest.TestCase):
         self.DB_PASSWORD = os.getenv('DB_PASSWORD', 'postgres')  
         self.DB_NAME = os.getenv('DB_NAME', 'fate')  
         self.DB_PATH = 'postgresql://{}:{}@{}/{}'.format(self.DB_USER, self.DB_PASSWORD, self.DB_HOST, self.DB_NAME)
+        MASTER_TOKEN = os.getenv('MASTER_TOKEN')
+        JUDGE_TOKEN = os.getenv('JUDGE_TOKEN')
+        FALSE_TOKEN = os.getenv('FALSE_TOKEN')
         setup_db(self.app)
 
         with self.app.app_context():
