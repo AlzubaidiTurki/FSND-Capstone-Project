@@ -57,6 +57,21 @@ after this, you can run the app using the following command\
 `
 flask run
 `
+### Deploy in Heroku
+Making the API live with Heroku is as easy as using git!\
+After installing Heroku CLI from here, run these commands \
+`heroku create name_of_your_app`\
+Copy the git url you will see after running the previous command, and then, run: \
+`git remote add heroku heroku_git_url` \
+Then, to connect the website with POSTGRES, run \
+`heroku addons:create heroku-postgresql:hobby-dev --app name_of_your_application` \
+Time to push!, run \
+`git push heroku master` \
+Now, we need upload our latest database schema (from migration), run: \
+`heroku run python manage.py db upgrade --app name_of_your_application` \
+At last, you should be able to see the API in the Heroku's account dashbaord. Click on it and go to settings, then reveal env vars, and add necessary enviorment varaible (as en setup.sh). \
+That's it!
+
 # Role and Premessions
 There three possible clients that can use the API 
 1. Public (anyone): They can only access the route page (/)
