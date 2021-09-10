@@ -5,7 +5,7 @@ from jose import jwt
 from urllib.request import urlopen
 import os
 
-AUTH0_DOMAIN = 'dev-samsnj-3.us.auth0.com'
+AUTH0_DOMAIN = os.getenv('AUTH0_DOMAIN', 'dev-samsnj-3.us.auth0.com')
 ALGORITHMS = [os.getenv('ALGORITHMS', 'RS256')]
 API_AUDIENCE = os.getenv('API_AUDIENCE', 'fate')
 
