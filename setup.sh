@@ -1,0 +1,8 @@
+ALGORITHMS=RS256
+API_AUDIENCE=fate
+AUTH0_DOMAIN=dev-samsnj-3.us.auth0.com
+DB_HOST=127.0.0.1:5432
+DB_NAME=fate
+DB_PASSWORD=' '
+DB_USER=postgres
+FLASK_APP=app.py
